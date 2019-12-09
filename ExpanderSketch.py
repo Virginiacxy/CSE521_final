@@ -1,9 +1,10 @@
 import numpy as np
 import collections
-
+from sp2 import spectral_partition
 # from spectral_partitioning import find_cut_S
 
 C = []
+txt_num = 0
 
 
 def main(G):
@@ -17,14 +18,27 @@ def main(G):
     return U
 
 
-def cut_grab_close(G):
-    # TODO Use Theorem 3 to find a cut S
+def write_G_to_txt(G, txt_num):
+    name = 'S_' + str(txt_num) + '.txt'
+    filel = open(name, 'w')
+    for v in list(G.keys()):
+        for d in G[v]:
+            filel.write(str(v) + ' ' + str(d) + '\n')
+    filel.close()
 
+
+def cut_grab_close(G):
+    global txt_num
+    # TODO Use Theorem 3 to find a cut S
+    txt_num += 1
     # conductance, S = find_cut_S(G)
     # if S:
     #     S = S.tolist()
-    S = [2, 14, 6, 8]
-    conductance = 0.1666667
+    write_G_to_txt(G, txt_num)
+    S, conductance = spectral_partition('S_' + str(txt_num) + '.txt')
+    print('S', S)
+    # S = [2, 14, 6, 8]
+    # conductance = 0.1666667
 
     V = list(G.keys())
     bar_S = [v for v in V if v not in S]
@@ -76,7 +90,7 @@ def local_improvements(G, S, T):
                 S.remove(v)
             else:
                 S.append(v)
-    return S, get_S_bar(G,S)
+    return S, get_S_bar(G, S)
     print('local')
     print(S)
 
