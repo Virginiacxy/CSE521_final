@@ -1,5 +1,6 @@
 import numpy as np
 import collections
+from spectral_partitioning import spectral_partition
 
 
 def main(G):
@@ -14,8 +15,12 @@ def main(G):
 
 def cut_grab_close(G):
     # TODO Use Theorem 3 to find a cut S
-    S = []
+    _, S = spectral_partition(G)
     bar_S = [v for v in list(G.keys()) if v not in S]
+    if len(S) > len(bar_S):
+        temp = S
+        S = bar_S
+        bar_S = temp
     min_vol = min(vol(G, S), vol(G, bar_S))
     boundary = 0
     for v in S:
