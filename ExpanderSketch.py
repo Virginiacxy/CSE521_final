@@ -1,6 +1,6 @@
 import numpy as np
 import collections
-from spectral_partitioning import spectral_partition
+from spectral_partitioning import find_cut_S
 
 
 def main(G):
@@ -15,7 +15,7 @@ def main(G):
 
 def cut_grab_close(G):
     # TODO Use Theorem 3 to find a cut S
-    _, S = spectral_partition(G)
+    _, S = find_cut_S(G)
     bar_S = [v for v in list(G.keys()) if v not in S]
     if len(S) > len(bar_S):
         temp = S

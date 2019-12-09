@@ -22,15 +22,16 @@ def power_method(num, edges, vertices, degrees, k):
     return y
 
 
-def count_edges(edges, vertices, s):
-    vol = 0
-    # print s
+def count_edges(pre_vol, idx, edges, vertices, s):
+    vol = pre_vol
     s = vertices[s]
-    # print s
-    for from_v in s:
-        for to_v in edges[from_v]:
-            if to_v not in s:
-                vol += 1
+    idx = vertices[idx]
+
+    for v in edges[idx]:
+        if v in s:
+            vol -= 1
+        else:
+            vol += 1
     return vol
 
 
@@ -41,27 +42,25 @@ def spectral_partition(x_sort_idx, num, edges, vertices, degrees):
     x_sort_idx = np.array(x_sort_idx)
     degrees = np.array(degrees)
     vertices = np.array(vertices)
-    for i in range(1, num):
-        s = []
-        for j in range(i):
-            if j in x_sort_idx:
-                s.append(j)
-        vol_s = np.sum(degrees[x_sort_idx[s]])
-        # print 'vol_s', vol_s, vol_G
+
+    s, vol_s = [], 0
+    vol = 0
+    for i in range(0, num):
+        s.append(x_sort_idx[i])
+        vol_s += degrees[x_sort_idx[i]]
         if vol_s <= vol_G / 2:
-            cond = count_edges(edges, vertices, x_sort_idx[s]) / vol_s
-            # print vertices[x_sort_idx[s]],count_edges(edges,s), vol_s,cond
+            vol = count_edges(vol, x_sort_idx[i], edges, vertices, s)
+            cond = vol / vol_s
             if cond < min_cond:
                 min_cond = cond
-                ids = vertices[x_sort_idx[s]]
-    # print(min_cond,ids)
+                ids = vertices[s]
     return min_cond, ids
 
 
-def spectral_partition(G):
+def find_cut_S(G):
     edges = G
-    vertices = edges.keys()
-    vertices.sort()
+    vertices = list(edges.keys())
+    # vertices.sort()
     num = len(vertices)
     degrees = np.zeros(num)
     for k in range(num):
@@ -71,5 +70,4 @@ def spectral_partition(G):
     x_norm = x / np.sqrt(degrees)
     x_sort_idx = np.argsort(x_norm)
     min_conda, ids = spectral_partition(x_sort_idx, num, edges, vertices, degrees)
-
     return min_conda, ids
