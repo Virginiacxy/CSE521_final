@@ -1,6 +1,7 @@
 import numpy as np
 import collections
-from spectral_partitioning import find_cut_S
+
+# from spectral_partitioning import find_cut_S
 
 C = []
 
@@ -18,29 +19,44 @@ def main(G):
 
 def cut_grab_close(G):
     # TODO Use Theorem 3 to find a cut S
-    _, S = find_cut_S(G)
-    bar_S = [v for v in list(G.keys()) if v not in S]
+
+    # conductance, S = find_cut_S(G)
+    # if S:
+    #     S = S.tolist()
+    S = [2, 14, 6, 8]
+    conductance = 0.1666667
+
+    V = list(G.keys())
+    bar_S = [v for v in V if v not in S]
     if len(S) > len(bar_S):
         temp = S
         S = bar_S
         bar_S = temp
-    min_vol = min(vol(G, S), vol(G, bar_S))
-    boundary = 0
-    for v in S:
-        boundary += len([d for d in G[v] if d not in S])
-    conductance = boundary / min_vol
-    if conductance >= 1 / 500:
-        return list(G.keys())
-    local_improvements(G, S, list(G.keys()))
-    grab(G, S)
-    local_improvements(G, S, bar_S)
-    grab(G, S)
-    local_improvements(G, S, bar_S)
-    local_improvements(G, bar_S, S)
+    # min_vol = min(vol(G, S), vol(G, bar_S))
+    # boundary = 0
+    # for v in S:
+    #     boundary += len([d for d in G[v] if d not in S])
+    # conductance = boundary / min_vol
+    if conductance >= 1 / 5:
+        print('hi')
+        return V
+    S, S_bar = local_improvements(G, S, V)
+    S = grab(G, S)
+    S, S_bar = local_improvements(G, S, S_bar)
+    S = grab(G, S)
+    S, _ = local_improvements(G, S, S_bar)
+
+    New_S_bar, _ = local_improvements(G, S_bar, S)
+
     G_S = cut_grab_close({k: G[k] for k in S})
-    G_bar_S = cut_grab_close({k: G[k] for k in bar_S})
+    G_bar_S = cut_grab_close({k: G[k] for k in New_S_bar})
     C.append(G_S)
     C.append(G_bar_S)
+
+
+def get_S_bar(G, S):
+    V = list(G.keys())
+    return [v for v in V if v not in S]
 
 
 def vol(G, S):
@@ -48,28 +64,42 @@ def vol(G, S):
 
 
 def local_improvements(G, S, T):
+    temp_S = S.copy()
     for v in T:
         total_edges = len(G[v])
         if v in S:
-            cross_cut = len([d for d in G[v] if d not in S])
+            cross_cut = len([d for d in G[v] if d not in temp_S])
         else:
-            cross_cut = len([d for d in G[v] if d in S])
+            cross_cut = len([d for d in G[v] if d in temp_S])
         if cross_cut / total_edges >= 5 / 9:
             if v in S:
                 S.remove(v)
             else:
                 S.append(v)
+    return S, get_S_bar(G,S)
+    print('local')
+    print(S)
 
 
 def grab(G, S):
     # suppose G \ V = bar(S)
     G_V = [v for v in list(G.keys()) if v not in S]
+    # print(G_V)
     T = []
     for v in G_V:
+        # print('v', v)
         neighbors = len([d for d in G[v] if d in S])
-        if neighbors >= 1 / 6:
+        # print('neighbors', neighbors)
+        # print('len', len(G[v]))
+        # print(neighbors / len(G[v]))
+        if neighbors / len(G[v]) >= 1 / 6:
             T.append(v)
+    # print('T', T)
     S.extend(T)
+
+    print('grab')
+    print(S)
+    return S
 
 
 def preprocess(f):
@@ -86,6 +116,6 @@ def preprocess(f):
 
 
 if __name__ == '__main__':
-    file = ""
+    file = "test1.txt"
     G = preprocess(file)
-    main(G)
+    print(main(G))
