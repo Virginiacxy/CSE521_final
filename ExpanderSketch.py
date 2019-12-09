@@ -2,9 +2,12 @@ import numpy as np
 import collections
 from spectral_partitioning import find_cut_S
 
+C = []
+
 
 def main(G):
-    U = cut_grab_close(G)
+    cut_grab_close(G)
+    U = C
     for U_i in U:
         for v in U_i:
             neighbors = len([d for d in G[v] if d not in U_i])
@@ -36,8 +39,8 @@ def cut_grab_close(G):
     local_improvements(G, bar_S, S)
     G_S = cut_grab_close({k: G[k] for k in S})
     G_bar_S = cut_grab_close({k: G[k] for k in bar_S})
-    C = G_S + G_bar_S
-    return C
+    C.append(G_S)
+    C.append(G_bar_S)
 
 
 def vol(G, S):
@@ -66,7 +69,7 @@ def grab(G, S):
         neighbors = len([d for d in G[v] if d in S])
         if neighbors >= 1 / 6:
             T.append(v)
-    S = S + T
+    S.extend(T)
 
 
 def preprocess(f):
