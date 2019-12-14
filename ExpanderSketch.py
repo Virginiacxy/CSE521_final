@@ -49,7 +49,7 @@ def cut_grab_close(G):
     #     boundary += len([d for d in G[v] if d not in S])
     # conductance = boundary / min_vol
     if conductance >= 1 / 60:
-        print('hi, we are sorry')
+        print('hi, we are sorry', U)
         return U.append(V)
     else:
         S, S_bar = local_improvements(G, S, V)
