@@ -29,15 +29,15 @@ def main(G):
 def cut_grab_close(G):
     # TODO Use Theorem 3 to find a cut S
     # conductance, S = find_cut_S(G)
-    # if S:
-    #     S = S.tolist()
+
     conductance, S = process(G)
     print('S', S)
+    S = S.tolist()
     # S = [2, 14, 6, 8]
     # conductance = 0.1666667
 
     V = list(G.keys())
-    bar_S = [v for v in V if v not in S]
+    bar_S = get_S_bar(G, S)
     if len(S) > len(bar_S):
         temp = S
         S = bar_S
@@ -58,8 +58,8 @@ def cut_grab_close(G):
 
     New_S_bar, _ = local_improvements(G, S_bar, S)
 
-    G_S = cut_grab_close({k: G[k] for k in S})
-    G_bar_S = cut_grab_close({k: G[k] for k in New_S_bar})
+    G_S = cut_grab_close(get_reduced_subgraph(G, S))
+    G_bar_S = cut_grab_close(get_reduced_subgraph(G, New_S_bar))
     C.append(G_S)
     C.append(G_bar_S)
 
@@ -67,6 +67,20 @@ def cut_grab_close(G):
 def get_S_bar(G, S):
     V = list(G.keys())
     return [v for v in V if v not in S]
+
+
+def get_reduced_subgraph(G, S):
+    print('original G', G)
+    print('S', S)
+    sub = {k: G[k] for k in S}
+    for k, v in sub.items():
+        new_v = []
+        for d in v:
+            if d in S:
+                new_v.append(d)
+        sub[k] = new_v
+    print('sub', sub)
+    return sub
 
 
 def vol(G, S):
