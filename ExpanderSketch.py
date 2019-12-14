@@ -39,7 +39,6 @@ def cut_grab_close(G):
     V = list(G.keys())
     print('V',V)
     bar_S = get_S_bar(G, S)
-    print('bar_S', bar_S)
     if len(S) > len(bar_S):
         temp = S
         S = bar_S
@@ -61,7 +60,7 @@ def cut_grab_close(G):
 
         S_bar, _ = local_improvements(G, S_bar, S)
 
-        return cut_grab_close(get_reduced_subgraph(G, S)) and cut_grab_close(get_reduced_subgraph(G, S_bar))
+        return cut_grab_close(get_reduced_subgraph(G, S)) or cut_grab_close(get_reduced_subgraph(G, S_bar))
 
 
 def get_S_bar(G, S):
@@ -141,6 +140,6 @@ def preprocess(f):
 
 
 if __name__ == '__main__':
-    file = "ca-GrQc.txt"
+    file = "ca-1.txt"
     G = preprocess(file)
-    print(main(G))
+    print('final',main(G))

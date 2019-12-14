@@ -7,7 +7,7 @@ with open(filename) as file:
 
 if len(lines) > k:
     random_lines = random.sample(lines, k)
-
+    print(len(random_lines))
     with open(filename, 'w') as output_file:
         output_file.writelines(line + "\n"
                                for line in lines if line not in random_lines)
