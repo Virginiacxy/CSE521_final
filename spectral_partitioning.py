@@ -57,7 +57,7 @@ def process(G):
     for k in range(num):
         degrees[k] = len(edges[vertices[k]])
 
-    x = power_method(num, edges, vertices, degrees, int(np.log(num) / 0.1))
+    x = power_method(num, edges, vertices, degrees, int(np.log(num) / 0.01))
     x_norm = x
     for i in range(len(x)):
         x_norm[i] = x[i] / math.sqrt(degrees[i])
