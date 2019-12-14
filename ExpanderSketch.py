@@ -3,12 +3,11 @@ import collections
 # from sp2 import spectral_partition
 from spectral_partitioning import process
 
-C = []
+U = []
 
 
 def main(G):
     cut_grab_close(G)
-    U = C
     for U_i in U:
         for v in U_i:
             neighbors = len([d for d in G[v] if d not in U_i])
@@ -23,21 +22,24 @@ def main(G):
 #     for v in list(G.keys()):
 #         for d in G[v]:
 #             filel.write(str(v) + ' ' + str(d) + '\n')
-#     filel.close()
+#     filel.close()bar_S
 
 
 def cut_grab_close(G):
+    # main body of our algorithm
     # TODO Use Theorem 3 to find a cut S
     # conductance, S = find_cut_S(G)
 
     conductance, S = process(G)
-    print('S', S)
+    print('conductance', conductance, 'S', S)
     S = S.tolist()
     # S = [2, 14, 6, 8]
     # conductance = 0.1666667
 
     V = list(G.keys())
+    print('V',V)
     bar_S = get_S_bar(G, S)
+    print('bar_S', bar_S)
     if len(S) > len(bar_S):
         temp = S
         S = bar_S
@@ -47,21 +49,19 @@ def cut_grab_close(G):
     # for v in S:
     #     boundary += len([d for d in G[v] if d not in S])
     # conductance = boundary / min_vol
-    if conductance >= 1 / 5:
-        print('hi')
-        return V
-    S, S_bar = local_improvements(G, S, V)
-    S = grab(G, S)
-    S, S_bar = local_improvements(G, S, S_bar)
-    S = grab(G, S)
-    S, _ = local_improvements(G, S, S_bar)
+    if conductance >= 1 / 60:
+        print('hi, we are sorry')
+        return U.append(V)
+    else:
+        S, S_bar = local_improvements(G, S, V)
+        S = grab(G, S)
+        S, S_bar = local_improvements(G, S, S_bar)
+        S = grab(G, S)
+        S, _ = local_improvements(G, S, S_bar)
 
-    New_S_bar, _ = local_improvements(G, S_bar, S)
+        S_bar, _ = local_improvements(G, S_bar, S)
 
-    G_S = cut_grab_close(get_reduced_subgraph(G, S))
-    G_bar_S = cut_grab_close(get_reduced_subgraph(G, New_S_bar))
-    C.append(G_S)
-    C.append(G_bar_S)
+        return cut_grab_close(get_reduced_subgraph(G, S)) and cut_grab_close(get_reduced_subgraph(G, S_bar))
 
 
 def get_S_bar(G, S):
@@ -70,7 +70,7 @@ def get_S_bar(G, S):
 
 
 def get_reduced_subgraph(G, S):
-    print('original G', G)
+    print('original G')
     print('S', S)
     sub = {k: G[k] for k in S}
     for k, v in sub.items():
@@ -100,9 +100,10 @@ def local_improvements(G, S, T):
                 S.remove(v)
             else:
                 S.append(v)
-    return S, get_S_bar(G, S)
-    print('local')
+
+    print('inside local')
     print(S)
+    return S, get_S_bar(G, S)
 
 
 def grab(G, S):
@@ -140,6 +141,6 @@ def preprocess(f):
 
 
 if __name__ == '__main__':
-    file = "test1.txt"
+    file = "ca-GrQc.txt"
     G = preprocess(file)
     print(main(G))
