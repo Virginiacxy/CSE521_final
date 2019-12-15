@@ -1,7 +1,7 @@
 import random
 #删除超多边的点的某些边
 
-filename = "ca-1.txt"
+filename = "ca-2.txt"
 
 with open(filename) as file:
     lines = file.read().splitlines()
@@ -20,8 +20,8 @@ print(newline_2[:10])
 newnewlines=[]
 for line in lines:
     temp = line.split()
-    if newline_1.count(temp[0]) + newline_2.count(temp[0]) > 14:
-        if random.randint(0,10) < 5:
+    if newline_1.count(temp[0]) + newline_2.count(temp[0]) > 4:
+        if random.randint(0,10) < 8:
             newnewlines.append(line)
     else:
         newnewlines.append(line)

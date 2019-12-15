@@ -48,7 +48,7 @@ def cut_grab_close(G):
     # for v in S:
     #     boundary += len([d for d in G[v] if d not in S])
     # conductance = boundary / min_vol
-    if conductance >= 1 / 60:
+    if conductance >= 1 / 5:
         print('hi, we are sorry', U)
         return U.append(V)
     else:
@@ -59,7 +59,11 @@ def cut_grab_close(G):
         S, _ = local_improvements(G, S, S_bar)
 
         S_bar, _ = local_improvements(G, S_bar, S)
-
+        print('deeoer',S,S_bar)
+        if len(S)==0:
+            return cut_grab_close(get_reduced_subgraph(G,S_bar))
+        if len(S_bar)==0:
+            return cut_grab_close(get_reduced_subgraph(G,S))
         return cut_grab_close(get_reduced_subgraph(G, S)) or cut_grab_close(get_reduced_subgraph(G, S_bar))
 
 
@@ -69,7 +73,7 @@ def get_S_bar(G, S):
 
 
 def get_reduced_subgraph(G, S):
-    print('original G')
+    print('original G', G)
     print('S', S)
     sub = {k: G[k] for k in S}
     for k, v in sub.items():
@@ -94,11 +98,12 @@ def local_improvements(G, S, T):
             cross_cut = len([d for d in G[v] if d not in temp_S])
         else:
             cross_cut = len([d for d in G[v] if d in temp_S])
-        if cross_cut / total_edges >= 5 / 9:
-            if v in S:
-                S.remove(v)
-            else:
-                S.append(v)
+        if total_edges != 0:
+            if cross_cut / total_edges >= 5 / 9:
+                if v in S:
+                    S.remove(v)
+                else:
+                    S.append(v)
 
     print('inside local')
     print(S)
@@ -116,8 +121,9 @@ def grab(G, S):
         # print('neighbors', neighbors)
         # print('len', len(G[v]))
         # print(neighbors / len(G[v]))
-        if neighbors / len(G[v]) >= 1 / 6:
-            T.append(v)
+        if len(G[v]) != 0:
+            if neighbors / len(G[v]) >= 1 / 6:
+                T.append(v)
     # print('T', T)
     S.extend(T)
 
@@ -140,6 +146,6 @@ def preprocess(f):
 
 
 if __name__ == '__main__':
-    file = "ca-1.txt"
+    file = "ca-2.txt"
     G = preprocess(file)
     print('final',main(G))

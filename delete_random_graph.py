@@ -1,7 +1,7 @@
 import random
 #排序后，保留最小的前 k row
-k = 10000
-filename = "ca-GrQc.txt"
+k = 1000
+filename = "ca-2.txt"
 with open(filename) as file:
     lines = file.read().splitlines()
 print(lines[:100])
