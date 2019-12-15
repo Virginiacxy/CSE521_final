@@ -1,5 +1,6 @@
 import numpy as np
 import collections
+from copy import deepcopy
 # from sp2 import spectral_partition
 from spectral_partitioning import process
 
@@ -37,8 +38,8 @@ def cut_grab_close(G):
     # conductance = 0.1666667
 
     V = list(G.keys())
-    print('V',V)
-    bar_S = get_S_bar(G, S)
+    print('V', V)
+    bar_S = get_bar(G, S)
     if len(S) > len(bar_S):
         temp = S
         S = bar_S
@@ -52,22 +53,38 @@ def cut_grab_close(G):
         print('hi, we are sorry', U)
         return U.append(V)
     else:
-        S, S_bar = local_improvements(G, S, V)
+        S = local_improvements(G, S, V)
         S = grab(G, S)
-        S, S_bar = local_improvements(G, S, S_bar)
+        S = local_improvements(G, S, get_bar(G, S))
         S = grab(G, S)
-        S, _ = local_improvements(G, S, S_bar)
+        S = local_improvements(G, S, get_bar(G, S))
 
-        S_bar, _ = local_improvements(G, S_bar, S)
-        print('deeoer',S,S_bar)
-        if len(S)==0:
-            return cut_grab_close(get_reduced_subgraph(G,S_bar))
-        if len(S_bar)==0:
-            return cut_grab_close(get_reduced_subgraph(G,S))
-        return cut_grab_close(get_reduced_subgraph(G, S)) or cut_grab_close(get_reduced_subgraph(G, S_bar))
+        S_bar = local_improvements(G, get_bar(G, S), S)
+        print('deeper', S, S_bar)
+
+        S_1 = clean(get_reduced_subgraph(G, S))
+        S_2 = clean(get_reduced_subgraph(G, S_bar))
+        if len(S_1) == 0 and len(S_2) == 0:
+            return
+        elif len(S_1) == 0:
+            return cut_grab_close(S_2)
+        elif len(S_2) == 0:
+            return cut_grab_close(S_1)
+        else:
+            return cut_grab_close(S_1) or cut_grab_close(S_2)
 
 
-def get_S_bar(G, S):
+def clean(G):
+    clear_list = []
+    for k, v in G.items():
+        if len(v) == 0:
+            clear_list.append(k)
+    for k in clear_list:
+        del G[k]
+    return G
+
+
+def get_bar(G, S):
     V = list(G.keys())
     return [v for v in V if v not in S]
 
@@ -107,7 +124,7 @@ def local_improvements(G, S, T):
 
     print('inside local')
     print(S)
-    return S, get_S_bar(G, S)
+    return S
 
 
 def grab(G, S):
@@ -148,4 +165,4 @@ def preprocess(f):
 if __name__ == '__main__':
     file = "ca-2.txt"
     G = preprocess(file)
-    print('final',main(G))
+    print('final', main(G))
