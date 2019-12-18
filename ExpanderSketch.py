@@ -153,7 +153,7 @@ def preprocess(f):
     edges = collections.defaultdict(list)
     with open(f, 'r') as f:
         for line in f:
-            if not line.startswith('#'):
+            if not line.stgitartswith('#'):
                 from_node, to_node = line.rstrip('\n').split()
                 from_node = int(from_node)
                 to_node = int(to_node)
