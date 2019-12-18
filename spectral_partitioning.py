@@ -49,7 +49,7 @@ def spectral_partition(x_sort_idx, num, edges, vertices, degrees):
 
 
 def process(G):
-    print('process', G)
+    # print('process', G)
     edges = G
 
     vertices = sorted(edges.keys())

@@ -19,18 +19,13 @@ def main(G):
 def cut_grab_close(G):
     # main body of our algorithm
     conductance, S = process(G)
-    print('conductance', conductance, 'S', S)
     S = S.tolist()
     V = list(G.keys())
-    print('V', V)
     bar_S = get_bar(G, S)
     if len(S) > len(bar_S):
-        temp = S
         S = bar_S
-        bar_S = temp
     if conductance >= 1 / 5:
-        print('hi, we are sorry', U)
-        return U.append(V)
+        U.append(V)
     else:
         S = local_improvements(G, S, V)
         S = grab(G, S)
@@ -38,19 +33,19 @@ def cut_grab_close(G):
         S = grab(G, S)
         S = local_improvements(G, S, get_bar(G, S))
 
-        S_bar = local_improvements(G, get_bar(G, S), S)
-        print('deeper', S, S_bar)
+        bar_S = local_improvements(G, get_bar(G, S), S)
 
-        S_1 = clean(get_reduced_subgraph(G, S))
-        S_2 = clean(get_reduced_subgraph(G, S_bar))
+        S_1 = clean(get_reduced_subgraph(G, get_bar(G, bar_S)))
+        S_2 = clean(get_reduced_subgraph(G, bar_S))
         if len(S_1) == 0 and len(S_2) == 0:
             return
         elif len(S_1) == 0:
-            return cut_grab_close(S_2)
+            cut_grab_close(S_2)
         elif len(S_2) == 0:
-            return cut_grab_close(S_1)
+            cut_grab_close(S_1)
         else:
-            return cut_grab_close(S_1) or cut_grab_close(S_2)
+            cut_grab_close(S_1)
+            cut_grab_close(S_2)
 
 
 def clean(G):
@@ -69,8 +64,6 @@ def get_bar(G, S):
 
 
 def get_reduced_subgraph(G, S):
-    print('original G', G)
-    print('S', S)
     sub = {k: G[k] for k in S}
     for k, v in sub.items():
         new_v = []
@@ -78,7 +71,6 @@ def get_reduced_subgraph(G, S):
             if d in S:
                 new_v.append(d)
         sub[k] = new_v
-    print('sub', sub)
     return sub
 
 
@@ -99,8 +91,6 @@ def local_improvements(G, S, T):
                 S.remove(v)
             else:
                 S.append(v)
-    print('inside local')
-    print(S)
     return S
 
 
@@ -112,8 +102,6 @@ def grab(G, S):
         if len(G[v]) != 0 and neighbors / len(G[v]) >= 1 / 6:
             T.append(v)
     S.extend(T)
-    print('grab')
-    print(S)
     return S
 
 
@@ -136,7 +124,7 @@ if __name__ == '__main__':
     file = "ca-2.txt"
     G = preprocess(file)
     final_result = main(G)
-    print('final', final_result)
+    # print('final', final_result)
     for c in final_result:
         print(sorted(c))
         print(check(G, c))
