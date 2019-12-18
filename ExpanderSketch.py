@@ -1,8 +1,7 @@
 import numpy as np
 import collections
-from copy import deepcopy
-# from sp2 import spectral_partition
 from spectral_partitioning import process
+from check import check
 
 U = []
 
@@ -17,26 +16,11 @@ def main(G):
     return U
 
 
-# def write_G_to_txt(G, txt_num):
-#     name = 'S_' + str(txt_num) + '.txt'
-#     filel = open(name, 'w')
-#     for v in list(G.keys()):
-#         for d in G[v]:
-#             filel.write(str(v) + ' ' + str(d) + '\n')
-#     filel.close()bar_S
-
-
 def cut_grab_close(G):
     # main body of our algorithm
-    # TODO Use Theorem 3 to find a cut S
-    # conductance, S = find_cut_S(G)
-
     conductance, S = process(G)
     print('conductance', conductance, 'S', S)
     S = S.tolist()
-    # S = [2, 14, 6, 8]
-    # conductance = 0.1666667
-
     V = list(G.keys())
     print('V', V)
     bar_S = get_bar(G, S)
@@ -44,11 +28,6 @@ def cut_grab_close(G):
         temp = S
         S = bar_S
         bar_S = temp
-    # min_vol = min(vol(G, S), vol(G, bar_S))
-    # boundary = 0
-    # for v in S:
-    #     boundary += len([d for d in G[v] if d not in S])
-    # conductance = boundary / min_vol
     if conductance >= 1 / 5:
         print('hi, we are sorry', U)
         return U.append(V)
@@ -115,35 +94,24 @@ def local_improvements(G, S, T):
             cross_cut = len([d for d in G[v] if d not in temp_S])
         else:
             cross_cut = len([d for d in G[v] if d in temp_S])
-        if total_edges != 0:
-            if cross_cut / total_edges >= 5 / 9:
-                if v in S:
-                    S.remove(v)
-                else:
-                    S.append(v)
-
+        if total_edges != 0 and cross_cut / total_edges >= 5 / 9:
+            if v in S:
+                S.remove(v)
+            else:
+                S.append(v)
     print('inside local')
     print(S)
     return S
 
 
 def grab(G, S):
-    # suppose G \ V = bar(S)
-    G_V = [v for v in list(G.keys()) if v not in S]
-    # print(G_V)
+    G_V = get_bar(G, S)
     T = []
     for v in G_V:
-        # print('v', v)
-        neighbors = len([d for d in G[v] if d in S])
-        # print('neighbors', neighbors)
-        # print('len', len(G[v]))
-        # print(neighbors / len(G[v]))
-        if len(G[v]) != 0:
-            if neighbors / len(G[v]) >= 1 / 6:
-                T.append(v)
-    # print('T', T)
+        neighbors = len([1 for d in G[v] if d in S])
+        if len(G[v]) != 0 and neighbors / len(G[v]) >= 1 / 6:
+            T.append(v)
     S.extend(T)
-
     print('grab')
     print(S)
     return S
@@ -157,12 +125,18 @@ def preprocess(f):
                 from_node, to_node = line.rstrip('\n').split()
                 from_node = int(from_node)
                 to_node = int(to_node)
-                edges[from_node].append(to_node)
-                edges[to_node].append(from_node)
+                if to_node not in edges[from_node]:
+                    edges[from_node].append(to_node)
+                if from_node not in edges[to_node]:
+                    edges[to_node].append(from_node)
     return edges
 
 
 if __name__ == '__main__':
     file = "ca-2.txt"
     G = preprocess(file)
-    print('final', main(G))
+    final_result = main(G)
+    print('final', final_result)
+    for c in final_result:
+        print(sorted(c))
+        print(check(G, c))
